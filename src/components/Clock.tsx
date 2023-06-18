@@ -1,14 +1,22 @@
+import { CSSProperties, useMemo } from 'react';
+import timeZones from '../time-zones';
 type Props = {
     time: Date;
-    timeZone: string;
+    cityCountry: string;
 };
-
-export const Clock: React.FC<Props> = ({ time, timeZone }) => {
-    const timeStr = time.toLocaleTimeString(undefined, { timeZone });
+const style: CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center' };
+function getTimeZone(cityCountry: string): string | undefined {
+    const timeZoneObj = timeZones.find((tz) => JSON.stringify(tz).includes(cityCountry));
+    return timeZoneObj?.name;
+}
+export const Clock: React.FC<Props> = ({ time, cityCountry }) => {
+    const timeZone: string | undefined =useMemo(() => getTimeZone(cityCountry), [cityCountry]);
+    const title: string = (timeZone && cityCountry) || 'Israel';
+    const timeStr: string = time.toLocaleTimeString(undefined, { timeZone });
 
     return (
-        <div>
-            <header>Time in {timeZone}</header>
+        <div style={style}>
+            <header>Time in {title}</header>
             <p>{timeStr}</p>
         </div>
     );
