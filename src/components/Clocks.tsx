@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Clock } from './Clock';
 
-const Clocks: React.FC = () => {
+type Props = {
+    cities: string[];
+}
+
+const Clocks: React.FC<Props> = ({ cities }) => {
     const [time, setTime] = useState<Date>(new Date());
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -11,8 +15,9 @@ const Clocks: React.FC = () => {
     }, []);
     return (
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-            <Clock time={time} cityCountry="London" />
-            <Clock time={time} cityCountry="Toronto" />
+            {cities.map((city) => (
+                <Clock key={city} time={time} cityCountry={city} />
+            ))}
         </div>
     );
 };
