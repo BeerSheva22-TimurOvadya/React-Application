@@ -1,14 +1,15 @@
-import { CSSProperties} from 'react';
 type Props = {
-    time: string
-}
+    time: Date;
+    timeZone: string;
+};
 
-export const Clock: React.FC<Props> = ({time}) => {
-    const style: CSSProperties = { display: 'Flex', flexDirection: 'column', alignItems: 'center' };
+export const Clock: React.FC<Props> = ({ time, timeZone }) => {
+    const timeStr = time.toLocaleTimeString(undefined, { timeZone });
+
     return (
-        <div style={style}>
-            <header>Time in Israel</header>
-            <p>{time}</p>            
+        <div>
+            <header>Time in {timeZone}</header>
+            <p>{timeStr}</p>
         </div>
     );
 };
