@@ -1,38 +1,41 @@
-import { useEffect, useRef, useState } from 'react';
-import InputResult from '../../model/InputResult';
-import Alert from './Alert';
+import { useEffect, useRef, useState } from "react";
+import InputResult from "../../model/InputResult";
+import Alert from "./Alert";
+import { StatusType } from "../../model/StstusType";
+import './Input.css';
 
 type Props = {
     submitFn: (inputText: string) => InputResult;
     placeholder: string;
-    buttonTitle?: string;
-    type?: string;
-    inputResult: InputResult;
-    setInputResult: (inputResult: InputResult) => void;
-};
-
-const Input: React.FC<Props> = ({ submitFn, placeholder, buttonTitle, type, inputResult, setInputResult }) => {
-    const inputElementRef = useRef<HTMLInputElement>(null);
-    const [disabled, setDisabled] = useState<boolean>(true);
-
-    function onClickFn() {
-        submitFn(inputElementRef.current!.value);
+    buttonTitle? : string;
+    type?: string
+}
+const Input: React.FC<Props> = ({submitFn, placeholder, buttonTitle, type}) => {
+    
+   const inputElementRef = useRef<HTMLInputElement>(null);
+   const [disabled, setDisabled] = useState<boolean>(true);
+   const [message, setMessage] = useState<string>("");
+   const status = useRef<StatusType>("success");
+   
+   function onClickFn(){
+        const res = submitFn(inputElementRef.current!.value);
+        status.current = res.status;
+        if(res.status === "success"){
+            inputElementRef.current!.value = ''
+        }
+        setMessage(res.message || '');
+        res.message && setTimeout(() => setMessage(''), 5000);
     }
-
+    
     function onChangeFn() {
-        setDisabled(!inputElementRef.current?.value);
+        setDisabled(!inputElementRef.current?.value)
     }
-
-    function clearMessage() {
-        setInputResult({ status: inputResult.status, message: '' });
-    }
-
-    return (
-        <div>
-            <input type={type || 'text'} placeholder={placeholder} ref={inputElementRef} onChange={onChangeFn} />
-            <button onClick={onClickFn} disabled={disabled}>{buttonTitle || 'GO'}</button>
-            {inputResult.message && <Alert status={inputResult.status} message={inputResult.message} clearMessage={clearMessage} />}
-        </div>
-    );
-};
+    
+    return <div>
+        <input type={type || 'text'} placeholder={placeholder} ref={inputElementRef}
+        onChange={onChangeFn}/>
+        <button  onClick={onClickFn} disabled={disabled}>{buttonTitle || 'GO' }</button>
+        {message && <Alert status={status.current} message={message}></Alert>}
+    </div>
+}
 export default Input;

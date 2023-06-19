@@ -1,26 +1,18 @@
-import React from 'react';
-import InputResult from '../../model/InputResult';
+import { CSSProperties } from 'react';
+import { StatusType } from '../../model/StstusType';
 
-type Props = InputResult & {
-    clearMessage: () => void;
+type Props = {
+    status: StatusType;
+    message: string;
 };
-
-const Alert: React.FC<Props> = ({ status, message, clearMessage }) => {
-    const colorMap = {
-        error: 'red',
-        warning: 'orange',
-        success: 'green'
-    };
-
-    const color = colorMap[status] || null;
-    
-    if (!color) return null;
-
-    setTimeout(clearMessage, 5000);
-
-    return (
-        <label style={{ color }}>{message}</label>
-    );
+const statusProps: Map<StatusType,CSSProperties> = new Map([
+    ['error', {backgroundColor: 'lightpink'}],
+    ["success", {backgroundColor: 'lightgreen'}],
+    ["warning", {backgroundColor: 'orange'}],   
+])
+const Alert: React.FC<Props> = ({status, message}) => {
+    return <div>
+        <p style ={statusProps.get(status)}>{message}</p>
+    </div>;
 };
-
 export default Alert;
