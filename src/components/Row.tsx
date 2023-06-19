@@ -1,4 +1,8 @@
 import { ReactNode } from 'react';
+import lifeConfig from '../config/life-game-config.json';
+
+const { dimension } = lifeConfig;
+const cellSize = 400 / dimension;  
 
 const Row: React.FC<{ row: number[] }> = ({ row }) => {
 
@@ -6,7 +10,12 @@ const Row: React.FC<{ row: number[] }> = ({ row }) => {
         return row.map((num, index) => (
             <div
                 key={index}
-                style={{ width: 10, height: 10, backgroundColor: num ? 'black' : 'white', border: 'solid 1px gray'}}
+                style={{ 
+                    width: cellSize, 
+                    height: cellSize, 
+                    backgroundColor: num ? 'black' : 'white', 
+                    border: 'solid 1px gray'
+                }}
             ></div>
         ));
     }
