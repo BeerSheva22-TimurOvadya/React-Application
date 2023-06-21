@@ -3,7 +3,7 @@ import LifeGame from './components/LifeGame';
 const App: React.FC = () => {
     return (
         <div>
-            <LifeGame /> <br></br> <br></br> <LifeGame />
+            <LifeGame /> 
         </div>
     );
 };

@@ -1,20 +1,25 @@
-import { ReactNode } from 'react';
-import lifeConfig from '../config/life-game-config.json';
+import { ReactNode, useEffect, useState } from 'react';
+import configLife from '../config/life-game-config.json';
 
-const { dimension } = lifeConfig;
-const cellSize = 400 / dimension;  
+function getSize() {
+    return Math.min(window.innerHeight, window.innerWidth) / configLife.dimension - 2;
+}
 
 const Row: React.FC<{ row: number[] }> = ({ row }) => {
+    const [size, setSize] = useState(getSize());
+    useEffect(() => {
+        window.addEventListener('resize', () => setSize(getSize()))      
+    }, []);
 
     function getDivs(): ReactNode {
         return row.map((num, index) => (
             <div
                 key={index}
-                style={{ 
-                    width: cellSize, 
-                    height: cellSize, 
-                    backgroundColor: num ? 'black' : 'white', 
-                    border: 'solid 1px gray'
+                style={{
+                    width: size,
+                    height: size,
+                    backgroundColor: num ? 'black' : 'white',
+                    border: 'solid 1px gray',
                 }}
             ></div>
         ));

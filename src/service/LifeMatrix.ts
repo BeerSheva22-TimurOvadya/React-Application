@@ -1,3 +1,4 @@
+import { matrixSum } from '../util/number-functions';
 import { getRandomMatrix } from '../util/random';
 
 export default class LifeMatrix {
@@ -6,34 +7,32 @@ export default class LifeMatrix {
         return this._numbers;
     }
     next(): number[][] {
-        this._numbers = this._numbers.map((row, i) =>
-            row.map((cell, j) => {
-                const aliveNeighbours = this.countAliveNeighbours(i, j);
-                if (cell === 1) {
-                    return aliveNeighbours === 2 || aliveNeighbours === 3 ? 1 : 0;
-                } else {
-                    return aliveNeighbours === 3 ? 1 : 0;
-                }
-            }),
-        );
+        this._numbers = this._numbers.map((_, index) => this.getNewRow(index));
         return this._numbers;
     }
 
-    private countAliveNeighbours(i: number, j: number): number {
-        const rowIndices = [i - 1, i, i + 1];
-        const colIndices = [j - 1, j, j + 1];
+    private getNewRow(index: number): number[] {
+        return this._numbers[index].map((_, j) => this.getNewCell(index, j));
+    }
+    private getNewCell(row: number, column: number): number {
+        const cell = this._numbers[row][column];
+        const partialMatrix = this.pertialMatrix(row, column);
+        const sum = matrixSum(partialMatrix) - cell;
 
-        const neighbours = rowIndices.flatMap((ri) =>
-            colIndices.map((ci) => (ri === i && ci === j ? 0 : this.getCell(ri, ci))),
+        return cell ? getCellFromLive(sum) : getCellFromDead(sum);
+    }
+    private pertialMatrix(row: number, column: number): number[][] {
+        const indexStart = !column ? 0 : column - 1;
+        const indexEnd = column === this._numbers[row].length - 1 ? column + 1 : column + 2;
+
+        return [row - 1, row, row + 1].map((i) =>
+            this._numbers[i] ? this._numbers[i].slice(indexStart, indexEnd) : [],
         );
-
-        return neighbours.filter(Boolean).length;
     }
-
-    private getCell(i: number, j: number): number {
-        if (i >= 0 && i < this._numbers.length && j >= 0 && j < this._numbers[0].length) {
-            return this._numbers[i][j];
-        }
-        return 0;
-    }
+}
+function getCellFromLive(sum: number): number {
+    return +(sum >= 2 && sum <= 3);
+}
+function getCellFromDead(sum: number): number {
+    return +(sum === 3);
 }
