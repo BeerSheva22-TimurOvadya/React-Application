@@ -1,5 +1,5 @@
 import { matrixSum } from '../util/number-functions';
-import { getRandomMatrix } from '../util/random';
+
 
 export default class LifeMatrix {
     constructor(private _numbers: number[][]) {}
