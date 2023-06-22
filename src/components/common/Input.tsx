@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import InputResult from "../../model/InputResult";
 import Alert from "./Alert";
 import { StatusType } from "../../model/StstusType";
