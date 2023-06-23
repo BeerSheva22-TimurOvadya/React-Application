@@ -1,34 +1,33 @@
+// src/components/navigators/Navigators.tsx
 import { NavLink, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import navigationConfig from '../../config/navigationConfig.json';
+
 const Navigator: React.FC = () => {
-    return (
-        <div>
-            <nav>
-                <ul className="navigator-list">
-                <li className="navigator-item">
-                        <NavLink to="/home">Home</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/customers">Customers</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/products">Products</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/orders">Orders</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/shoppingCart">Shopping Cart</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/signin">Sign In</NavLink>
-                    </li>
-                    <li className="navigator-item">
-                        <NavLink to="/signout">Sign Out</NavLink>
-                    </li>
-                </ul>
-            </nav>
-            <Outlet></Outlet>
-        </div>
-    );
+  const { isLoggedIn, username } = useSelector((state: RootState) => state.auth);
+
+  let userType:'admin' | 'user' | 'guest' = 'guest';
+  if (isLoggedIn) {
+    userType = username.startsWith('admin') ? 'admin' : 'user';
+  }
+
+  const userRoutes = navigationConfig[userType];
+
+  return (
+    <div>
+      <nav>
+        <ul className="navigator-list">
+          {userRoutes.map((route) => (
+            <li key={route} className="navigator-item">
+              <NavLink to={`/${route}`}>{route.charAt(0).toUpperCase() + route.slice(1)}</NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <Outlet></Outlet>
+    </div>
+  );
 };
+
 export default Navigator;
