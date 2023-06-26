@@ -8,7 +8,7 @@ const SignIn: React.FC = () => {
         <Input
             submitFn={function (username: string): InputResult {
                 setTimeout(() => dispatch(authActions.set(username)), 5000);
-                return { status: 'error', message: username };
+                return { status:'success' , message: username };
             }}
             placeholder="username"
         />
