@@ -1,7 +1,0 @@
-
-{
-    "admin": ["home", "signout", "products", "orders", "customers"],
-    "user": ["home", "products", "shoppingCart", "signout"],
-    "guest": ["home", "signin"]
-  }
-  

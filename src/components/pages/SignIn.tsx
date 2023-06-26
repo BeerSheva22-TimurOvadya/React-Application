@@ -1,33 +1,17 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../redux/slices/authSlice';
-import { useState } from 'react';
-import { RootState } from '../../redux/store';
-
+import { useDispatch } from 'react-redux';
+import Input from '../common/Input';
+import InputResult from '../../model/InputResult';
+import { authActions } from '../../redux/slices/authSlice';
 const SignIn: React.FC = () => {
-  const dispatch = useDispatch();
-  const [username, setUsername] = useState('');
-  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
-
-  const handleLogin = () => {
-    dispatch(login(username));
-    setUsername('');
-  };
-
-  if (isLoggedIn) {
-    return null;
-  }
-
-  return (
-    <div className='component-logo'>
-      <input 
-        type='text' 
-        value={username} 
-        onChange={(e) => setUsername(e.target.value)} 
-        placeholder='Username'
-      />
-      <button onClick={handleLogin}>Sign In</button>
-    </div>
-  );
+    const dispatch = useDispatch();
+    return (
+        <Input
+            submitFn={function (username: string): InputResult {
+                setTimeout(() => dispatch(authActions.set(username)), 5000);
+                return { status: 'error', message: username };
+            }}
+            placeholder="username"
+        />
+    );
 };
-
 export default SignIn;

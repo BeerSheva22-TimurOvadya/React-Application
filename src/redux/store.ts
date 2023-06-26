@@ -1,13 +1,13 @@
-
-// src/redux/store.ts
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import { authReducer } from "./slices/authSlice";
+import { useSelector } from "react-redux";
 
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-  },
+    reducer: {
+     authState: authReducer
+    }
 });
-
-export type RootState = ReturnType<typeof store.getState>;
+export function useSelectorAuth() {
+    return useSelector<any, string>(state => state.authState.username);
+}
 
