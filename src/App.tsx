@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navigator, { RouteType } from "./components/navigators/Navigator";
+import NavigatorDispatcher from "./components/navigators/NavigatorDispatcher";
+import {RouteType} from './components/navigators/Navigator'
 import Home from "./components/pages/Home";
 import Customers from "./components/pages/Customers";
 import Products from "./components/pages/Products";
@@ -27,7 +28,7 @@ const App: React.FC = () => {
   const routes = useMemo(() => getRoutes(username), [username])
   return <BrowserRouter>
   <Routes>
-    <Route path="/" element={<Navigator routes={routes}/>}>
+    <Route path="/" element={<NavigatorDispatcher routes={routes}/>}>
         <Route index element={<Home/>}/>
         <Route path="customers" element={<Customers/>}/>
         <Route path="products" element={<Products/>}/>
