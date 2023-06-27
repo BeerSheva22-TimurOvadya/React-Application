@@ -9,14 +9,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-
 const defaultTheme = createTheme();
 
-interface Props {
-  onSubmit: (email: string, password: string) => void;
-}
-
-const SignInForm: React.FC<Props> = ({ onSubmit }) => {
+const SignInForm: React.FC<{ onSubmit: (email: string, password: string) => void }> = ({ onSubmit }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);

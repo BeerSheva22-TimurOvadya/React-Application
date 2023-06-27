@@ -29,6 +29,11 @@ export default class AuthServiceJwt implements AuthService {
         }
     }
 
+    async loginAndGetUsername(loginData: { email: string; password: string; }): Promise<string | null> {
+        const userData = await this.login(loginData);
+        return userData ? userData.email : null;
+    }
+
     async logout(): Promise<void> {
         store.dispatch(authActions.reset());
     }

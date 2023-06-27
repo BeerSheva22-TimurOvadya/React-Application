@@ -4,29 +4,23 @@ import { useDispatch } from "react-redux";
 import SignInForm from "../forms/SignInForm";
 import { authActions } from "../../redux/slices/authSlice";
 import { Alert, Snackbar } from "@mui/material";
+import AuthServiceJwt from "../../service/AuthServiceJwt";
 
 const SignIn: React.FC = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const onClose = () => setOpen(false);
+  
+  const authService = new AuthServiceJwt("http://localhost:3500");
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      const response = await fetch("http://localhost:3500/login", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });   
-
-      const data = await response.json();
-      const payloadJson = atob(data.accessToken.split('.')[1]);
-      const userData = JSON.parse(payloadJson);
-      const username = userData.email;
-
+      const username = await authService.loginAndGetUsername({ email, password });
+      if (!username) {
+        throw new Error("Invalid email or password");
+      }
       dispatch(authActions.set(username));
-    
+          
     } catch (error) {      
       setOpen(true);
     }
