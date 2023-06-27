@@ -9,6 +9,7 @@ const Navigator: React.FC<{ routes: RouteType[] }> = ({ routes }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [value, setValue] = useState(0);
+    
     useEffect(() => {
         let index = routes.findIndex((r) => r.to === location.pathname);
         if (index < 0) {
@@ -21,6 +22,7 @@ const Navigator: React.FC<{ routes: RouteType[] }> = ({ routes }) => {
     function onChangeFn(event: any, newValue: number) {
         setValue(newValue);
     }
+
     function getTabs(): ReactNode {
         return routes.map((r) => <Tab component={NavLink} to={r.to} label={r.label} key={r.label} />);
     }

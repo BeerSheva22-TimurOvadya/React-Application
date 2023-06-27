@@ -1,5 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 const AUTH_ITEM = "auth-item";
+
 const initialState: {username: string} = {
 username: localStorage.getItem(AUTH_ITEM) || ''
 }
