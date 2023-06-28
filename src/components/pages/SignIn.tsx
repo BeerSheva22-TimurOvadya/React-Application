@@ -1,39 +1,21 @@
-// SignIn.tsx
-import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import SignInForm from "../forms/SignInForm";
+import Input from "../common/Input";
+import InputResult from "../../model/InputResult";
 import { authActions } from "../../redux/slices/authSlice";
-import { Alert, Snackbar } from "@mui/material";
-import AuthServiceJwt from "../../service/AuthServiceJwt";
-
+import LoginData from "../../model/LoginData";
+import { authService } from "../../config/service-config";
+import UserData from "../../model/UserData";
+import SignInForm from "../forms/SignInForm";
 const SignIn: React.FC = () => {
-  const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
-  const onClose = () => setOpen(false);
-  
-  const authService = new AuthServiceJwt("http://localhost:3500");
-
-  const handleSignIn = async (email: string, password: string) => {
-    try {
-        const user = await authService.loginAndGetUsername({ email, password });
-        if (!user) {
-            throw new Error("Invalid email or password");
-        }
-    } catch (error) {
-        setOpen(true);
+    const dispatch = useDispatch();
+    async function submitFn(loginData: LoginData): Promise<InputResult> {
+        const res: UserData = await authService.login(loginData);
+        res && dispatch(authActions.set(res));
+        return {status: res ? 'success' : 'error',
+         message: res ? '' : 'Incorrect Credentials'}
     }
-};
+    return <SignInForm submitFn={submitFn}/>
 
-  return (
-    <>
-      <Snackbar open={open} autoHideDuration={5000} onClose={onClose}>
-        <Alert severity="error" sx={{ width: '100%' }}>
-          "Invalid email or password"
-        </Alert>
-      </Snackbar>
-      <SignInForm onSubmit={handleSignIn} />
-    </>
-  );
-};
+}
 
-export default SignIn;
+ export default SignIn;
