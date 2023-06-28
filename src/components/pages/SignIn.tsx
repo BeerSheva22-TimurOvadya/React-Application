@@ -15,16 +15,14 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      const username = await authService.loginAndGetUsername({ email, password });
-      if (!username) {
-        throw new Error("Invalid email or password");
-      }
-      dispatch(authActions.set(username));
-          
-    } catch (error) {      
-      setOpen(true);
+        const user = await authService.loginAndGetUsername({ email, password });
+        if (!user) {
+            throw new Error("Invalid email or password");
+        }
+    } catch (error) {
+        setOpen(true);
     }
-  };
+};
 
   return (
     <>

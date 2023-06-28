@@ -17,21 +17,24 @@ export default class AuthServiceJwt implements AuthService {
             });   
             if (!response.ok) {
                 throw new Error("Invalid email or password");
-            }
-
+            }    
             const data = await response.json();
             const payloadJson = atob(data.accessToken.split('.')[1]);
-            const userData: UserData = JSON.parse(payloadJson);
+            const userData: UserData = JSON.parse(payloadJson);            
+            userData.role = data.user.id;
             return userData;
         } catch (error) {
             console.error(error);
             return null;
         }
     }
-
-    async loginAndGetUsername(loginData: { email: string; password: string; }): Promise<string | null> {
+    
+    async loginAndGetUsername(loginData: { email: string; password: string; }): Promise<UserData | null> {
         const userData = await this.login(loginData);
-        return userData ? userData.email : null;
+        if (userData) {
+            store.dispatch(authActions.set(userData));
+        }
+        return userData;
     }
 
     async logout(): Promise<void> {
