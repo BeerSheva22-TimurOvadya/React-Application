@@ -11,8 +11,42 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save';
 import Stack from '@mui/material/Stack';
+import { employeesService } from '../../config/service-config';
+import { ChangeEvent, FormEvent } from 'react';
 
-export default function FormPropsTextFields() {
+type EmployeeState = {
+    name: string;
+    salary: number;
+    birthDate: Date;
+    department: string;
+    gender: 'male' | 'female';
+};
+
+export default function AddEmployeeForm() {
+    const [employee, setEmployee] = React.useState<EmployeeState>({
+        name: '',
+        salary: 0,
+        birthDate: new Date(),
+        department: '',
+        gender: 'male',
+    });
+
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.name === 'salary' ? parseInt(event.target.value) : event.target.value;
+        setEmployee({ ...employee, [event.target.name]: value });
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        await employeesService.addEmployee(employee);
+        setEmployee({
+            name: '',
+            salary: 0,
+            birthDate: new Date(),
+            department: '',
+            gender: 'male',
+        });
+    };
     return (
         <Box
             component="form"
@@ -21,12 +55,31 @@ export default function FormPropsTextFields() {
             }}
             noValidate
             autoComplete="off"
+            onSubmit={handleSubmit}
         >
             <div>
-                <TextField id="outlined-input" label="Name of employee" type="input" />
-
-                <TextField id="outlined-number" label="Salary of employee" type="number" />
                 <TextField
+                    name="name"
+                    value={employee.name}
+                    onChange={handleChange}
+                    id="outlined-input"
+                    label="Name of employee"
+                    type="input"
+                />
+
+                <TextField
+                    name="salary"
+                    value={employee.salary}
+                    onChange={handleChange}
+                    id="outlined-number"
+                    label="Salary of employee"
+                    type="number"                   
+                />
+
+                <TextField
+                    name="birthDate"
+                    value={employee.birthDate}
+                    onChange={handleChange}
                     id="outlined-input"
                     label="Bith Day of employee"
                     type="date"
@@ -34,10 +87,17 @@ export default function FormPropsTextFields() {
                         shrink: true,
                     }}
                 />
-                <TextField id="outlined-input" label="Department of employee" type="input" />
-                <TextField id="outlined-input" label="Role of employee" type="input" />
+                <TextField
+                    name="department"
+                    value={employee.department}
+                    onChange={handleChange}
+                    id="outlined-input"
+                    label="Department of employee"
+                    type="input"
+                />
+                
 
-                <FormControl>
+                <FormControl >
                     <FormLabel id="demo-row-radio-buttons-group-label">Gender</FormLabel>
                     <RadioGroup
                         row
@@ -50,7 +110,19 @@ export default function FormPropsTextFields() {
                 </FormControl>
 
                 <Stack direction="row" spacing={2}>
-                    <Button variant="outlined" startIcon={<DeleteIcon />} type="submit">
+                    <Button
+                        variant="outlined"
+                        startIcon={<DeleteIcon />}
+                        onClick={() =>
+                            setEmployee({
+                                name: '',
+                                salary: 0,
+                                birthDate: new Date(),
+                                department: '',
+                                gender: 'male',
+                            })
+                        }
+                    >
                         Clear All
                     </Button>
                     <Button variant="contained" endIcon={<SaveIcon />} type="submit">
