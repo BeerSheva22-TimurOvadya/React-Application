@@ -9,7 +9,7 @@ const Employees: React.FC = () => {
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'ID', flex: 0.5 },
         { field: 'name', headerName: 'Name' , flex: 0.7},
-        { field: 'birthDate', type: 'date', headerName: 'Date', flex: 1.5 },
+        { field: 'birthDate', type: 'date', headerName: 'Date', flex: 0.8 },
         { field: 'department', headerName: 'Department', flex: 0.8 },
         { field: 'salary', headerName: 'Salary', type: 'number', flex: 0.6 },
         { field: 'gender', headerName: 'Gender', type: 'gender', flex: 0.6},
