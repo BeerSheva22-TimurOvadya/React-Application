@@ -9,7 +9,8 @@
     ],
 
     "admin": [
-        { "to": "/employees/add", "label": "Add Employee", "order": 2}
+        { "to": "/employees/add", "label": "Add Employee", "order": 2},
+        { "to": "/employees/generation", "label": "Generation Employees", "order": 3}
     ],
 
     "noadmin": [],
