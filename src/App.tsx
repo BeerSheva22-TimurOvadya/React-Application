@@ -15,6 +15,7 @@ import Employees from "./components/pages/Employees";
 import SalaryStatistics from "./components/pages/SalaryStatistics";
 
 
+
 const {always, authenticated, admin, noadmin, noauthenticated} = routesConfig;
 type RouteTypeOrder = RouteType  & {order?: number}
 
@@ -52,7 +53,7 @@ const App: React.FC = () => {
   <Routes>
     <Route path="/" element={<NavigatorDispatcher routes={routes}/>}>
         <Route index element={<Employees/>}/>
-        <Route path="employees/add" element={<AddEmployee/>}/> 
+        <Route path="employees/add" element={<AddEmployee/>}/>         
         <Route path="statistics/age" element={<AgeStatistics/>}/>
         <Route path="statistics/salary" element={<SalaryStatistics/>}/>        
         <Route path="signin" element={<SignIn/>}/>

@@ -4,7 +4,7 @@ const names ={
     "femaleNames": ["Asya", "Sara", "Rivka", "Olya", "Klara", "Galya"]
 };
 export function getRandomInt(min, max) {
-    if(min == max) {
+    if(min === max) {
         max++;
     } else if (min > max) {
         [min, max] = [max, min]
@@ -17,7 +17,7 @@ export function getRandomElement(array) {
 }
 export function getRandomEmployee(minSalary, maxSalary, minYear, maxYear, departments) {
    const gender = getRandomElement(['male', 'female']);
-   const name = getRandomElement(gender == 'female' ? names.femaleNames :
+   const name = getRandomElement(gender === 'female' ? names.femaleNames :
     names.maleNames);
     const birthYear = getRandomInt(minYear, maxYear + 1);
     const salary = Math.round(getRandomInt(minSalary, maxSalary) / 1000) * 1000;

@@ -6,15 +6,23 @@ import EmployeesService from './EmployeesService';
 export default class EmployeesServiceRest implements EmployeesService {
     constructor(private url: string) {}
 
-    getEmployees(): Observable<Employee[]> {
-        const res = new Observable<Employee[]>((subscriber) => {
+    getEmployees(): Observable<Employee[] | string> {
+        const res = new Observable<Employee[] | string>((subscriber) => {
             fetch(this.url, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem(AUTH_DATA_JWT),
                 },
             })
-                .then((response) => response.json())
-                .then((data) => subscriber.next(data));
+                .then((response) => {
+                    let res: Promise<Employee[] | string >;
+                    if(response.ok) {
+                        res =  response.json();
+                    } else {
+                        res = Promise.resolve(response.status === 401 || response.status === 403 ?  'Authentication' : response.statusText);
+                    }
+                    return res;
+                })
+                .then((data) => subscriber.next(data)).catch(error => subscriber.next('Server is unavailable, repeate later on'));                
         });
         return res;
     }
