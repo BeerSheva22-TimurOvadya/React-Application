@@ -47,5 +47,6 @@ export default class EmployeesServiceRest implements EmployeesService {
         } catch (error: any) {
             throw responseText ? responseText : 'Server is unavailable. Repeat later on';
         }
+        
     }
 }

@@ -1,61 +1,47 @@
 import React, { useRef, useState } from "react";
-import {  Grid, TextField, Box,  Button,  Snackbar, Alert } from '@mui/material';
-import Employee from "../../model/Employee";
-import InputResult from "../../model/InputResult";
+import { Grid, TextField, Box, Button, Snackbar, Alert } from '@mui/material';
 import { StatusType } from "../../model/StatusType";
 
 type Props = {
-    submitFn: (empl: Employee) => Promise<InputResult>,
-
+    submitFn: (numOfEmployees: number) => Promise<StatusType>,
 }
-const initialDate: any = 0;
-const initialGender: any = '';
-const minEmployees: number = 1;
-const maxEmployees: number = 50;
-const initialEmployee: Employee = {
-    id: 0, birthDate: initialDate, name: '',department: '', salary: 0,
-     gender: initialGender
-};
+
 export const GenerationEmploeeysForm: React.FC<Props> = ({ submitFn }) => {
+    const minEmployees: number = 1;
+    const maxEmployees: number = 50;
+
+    const [numOfEmployees, setNumOfEmployees] = useState<number | null>(null);
+    const [alertMessage, setAlertMessage] = useState('');
+    const severity = useRef<StatusType>('success');
     
-       
-    const [employee, setEmployee] =
-        useState<Employee>(initialEmployee);
-        const [errorMessage, setErrorMessage] = useState('');
-        const [alertMessage, setAlertMessage] = useState('')
-        const severity = useRef<StatusType>('success')
-    
-    function handlerSalary(event: any) {
-        const salary: number = +event.target.value;
-        const emplCopy = { ...employee };
-        emplCopy.salary = salary;
-        setEmployee(emplCopy);
-    }
-   
     async function onSubmitFn(event: any) {
         event.preventDefault();
-        if(!employee.gender) {
-            setErrorMessage("Please select gender")
+        if(!numOfEmployees || numOfEmployees < minEmployees || numOfEmployees > maxEmployees) {
+            setAlertMessage("Please enter a valid number of employees")
         } else {
-             const res =  await submitFn(employee);
-             severity.current = res.status;
-             res.status === "success" && event.target.reset();
-             setAlertMessage(res.message!);
+            const res = await submitFn(numOfEmployees);
+            severity.current = res;
+            setAlertMessage(res === 'success' ? `${numOfEmployees} Employees successfully added` : "An error occurred");
+            setNumOfEmployees(null); 
         }
-       
-        
     }
+    
     function onResetFn(event: any) {
-        setEmployee(initialEmployee);
+        setNumOfEmployees(null);  
+    }
+    
+    function onNumOfEmployeesChange(event: any) {
+        setNumOfEmployees(event.target.value);
     }
 
     return <Box sx={{ marginTop: { sm: "25vh" } }}>
+        
         <form onSubmit={onSubmitFn} onReset={onResetFn}>
             <Grid container spacing={4} justifyContent="center">              
                 <Grid item xs={8} sm={4} md={5} >
                     <TextField label="number of employees" fullWidth required
-                        type="number" onChange={handlerSalary}
-                        value={employee.salary || ''}
+                        type="number" onChange={onNumOfEmployeesChange}
+                        value={numOfEmployees || ''}
                         helperText={`enter employees in range [${minEmployees}-${maxEmployees}]`}
                         inputProps={{
                             min: minEmployees,
@@ -63,12 +49,10 @@ export const GenerationEmploeeysForm: React.FC<Props> = ({ submitFn }) => {
                         }} />
                 </Grid>               
             </Grid>
-
             <Box sx={{ marginTop: { xs: "10vh", sm: "5vh" }, textAlign: "center" }}>
                 <Button type="submit" >Submit</Button>
                 <Button type="reset">Reset</Button>
             </Box>
-
         </form>
         <Snackbar open={!!alertMessage} autoHideDuration={20000}
                      onClose={() => setAlertMessage('')}>
