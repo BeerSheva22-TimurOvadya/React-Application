@@ -36,9 +36,9 @@ const Confirm: React.FC<Props> = ({open, title, text, onConfirm, onCancel}) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Disagree</Button>
+                    <Button onClick={handleClose}>NO</Button>
                     <Button onClick={handleConfirm} autoFocus>
-                        Agree
+                        YES
                     </Button>
                 </DialogActions>
             </Dialog>

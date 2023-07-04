@@ -2,7 +2,7 @@ import { Box, Snackbar, Alert } from '@mui/material';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Employee from '../../model/Employee';
 import { authService, employeesService } from '../../config/service-config';
-import { Subscription } from 'rxjs';
+
 import { DataGrid, GridActionsCellItem, GridColDef, GridRowId } from '@mui/x-data-grid';
 import { useDispatch } from 'react-redux';
 import { authActions } from '../../redux/slices/authSlice';
@@ -10,6 +10,8 @@ import { StatusType } from '../../model/StatusType';
 import { useSelectorAuth } from '../../redux/store';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Confirm from '../common/Confirm';
+import EditModal from '../common/EditModal';
+import EditIcon from '@mui/icons-material/Edit';
 
 
 const Employees: React.FC = () => {
@@ -22,19 +24,37 @@ const Employees: React.FC = () => {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
-    const handleDeleteClick = (id: GridRowId) => {
+    const [editOpen, setEditOpen] = useState(false);
+    const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
+
+    
+
+    const handleEditClick = (id: GridRowId) => {
         const employee = employees.find((e) => e.id === id);
         if (employee) {
-            setEmployeeToDelete(employee);
-            setConfirmOpen(true);
+            setEmployeeToEdit(employee);
+            setEditOpen(true);
         }
     };
 
-    const handleDeleteCancel = () => {
-        setEmployeeToDelete(null);
-        setConfirmOpen(false);
+    const handleSaveFunction = async (empl: Employee) => {
+        try {
+          empl.birthDate = new Date(empl.birthDate); 
+          const updatedEmployee: Employee = await employeesService.updateEmployee(empl);
+          setEmployees(employees.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
+          setEditOpen(false);
+        } catch (error: any) {
+            
+            if(typeof(error) == 'string' && error.includes('Authentication')) {
+                authService.logout();
+                dispatch(authActions.reset());
+                
+            } else {
+                setAlertMessage(error);
+            }
+        }
+        
     };
-
     const handleDeleteConfirm = async () => {
         if (employeeToDelete !== null) {
             try {
@@ -51,6 +71,26 @@ const Employees: React.FC = () => {
         }
         setConfirmOpen(false);
     };
+
+    const handleEditClose = () => {
+        setEmployeeToEdit(null);
+        setEditOpen(false);
+    };
+
+    const handleDeleteClick = (id: GridRowId) => {
+        const employee = employees.find((e) => e.id === id);
+        if (employee) {
+            setEmployeeToDelete(employee);
+            setConfirmOpen(true);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setEmployeeToDelete(null);
+        setConfirmOpen(false);
+    };
+
+    
 
     useEffect(() => {
         const subscription = employeesService.getEmployees().subscribe({
@@ -97,6 +137,7 @@ const Employees: React.FC = () => {
                 headerClassName: 'data-grid-header',
                 align: 'center',
                 headerAlign: 'center',
+                valueGetter: (params) => new Date(params.value)
             },
             {
                 field: 'department',
@@ -137,6 +178,11 @@ const Employees: React.FC = () => {
                             label="Delete"
                             onClick={() => handleDeleteClick(params.id)}
                         />,
+                        <GridActionsCellItem
+                            icon={<EditIcon />}
+                            label="Edit"
+                            onClick={() => handleEditClick(params.id)}
+                        />,
                     ],
                 },
             ];
@@ -146,6 +192,12 @@ const Employees: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Box sx={{ height: '50vh', width: '80vw' }}>
                     <DataGrid columns={columns} rows={employees} />
+                    <EditModal
+                        open={editOpen}
+                        handleClose={handleEditClose}
+                        employee={employeeToEdit}
+                        handleSave={handleSaveFunction}
+                    />
 
                     <Confirm
                         open={confirmOpen}
