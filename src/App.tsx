@@ -50,8 +50,8 @@ function getRoutes(userData: UserData): RouteType[] {
 const App: React.FC = () => {
   const userData = useSelectorAuth();
   const code = useSelectorCode();
-  
-  const [alertMessage, severiry] = useMemo(() => codeProcessing(), [code]);
+
+  // const [alertMessage, severiry] = useMemo(() => codeProcessing(), [code]);
   const routes = useMemo(() => getRoutes(userData), [userData])
   return <BrowserRouter>
   <Routes>

@@ -21,7 +21,12 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
         useState<Employee>(initialEmployee);
         const [errorMessage, setErrorMessage] = useState('');
         const [alertMessage, setAlertMessage] = useState('')
+
+        
         const severity = useRef<StatusType>('success')
+
+     
+
     function handlerName(event: any) {
         const name = event.target.value;
         const emplCopy = { ...employee };
@@ -60,7 +65,7 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
         } else {
              const res =  await submitFn(employee);
              severity.current = res.status;
-             res.status == "success" && event.target.reset();
+             res.status === "success" && event.target.reset();
              setAlertMessage(res.message!);
         }
        
@@ -145,4 +150,6 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
                         </Alert>
                     </Snackbar>
     </Box>
+
+    
 }
