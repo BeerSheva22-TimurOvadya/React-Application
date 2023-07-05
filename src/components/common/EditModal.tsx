@@ -57,7 +57,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, handleClose, employee, hand
           Edit employee with ID: {editedEmployee.id}
         </Typography>
         <form onSubmit={onSubmitFn}>
-          <Grid container spacing={4} justifyContent="center">
+          <Grid container spacing={4} justifyContent="center" marginTop={2}>
             <Grid item xs={8} sm={5}>
               <FormControl fullWidth required>
                 <InputLabel id="select-department-id">Department</InputLabel>
@@ -78,7 +78,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, handleClose, employee, hand
                 required 
                 fullWidth 
                 label="Employee name"
-                helperText="Enter Employee name" 
+                helperText="Enter name" 
                 onChange={e => setEditedEmployee({...editedEmployee, name: e.target.value})}
                 value={editedEmployee.name} 
               />
