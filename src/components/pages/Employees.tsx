@@ -13,7 +13,6 @@ import Confirm from '../common/Confirm';
 import EditModal from '../common/EditModal';
 import EditIcon from '@mui/icons-material/Edit';
 
-
 const Employees: React.FC = () => {
     const dispatch = useDispatch();
     const [alertMessage, setAlertMessage] = useState('');
@@ -27,8 +26,6 @@ const Employees: React.FC = () => {
     const [editOpen, setEditOpen] = useState(false);
     const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
 
-    
-
     const handleEditClick = (id: GridRowId) => {
         const employee = employees.find((e) => e.id === id);
         if (employee) {
@@ -39,21 +36,18 @@ const Employees: React.FC = () => {
 
     const handleSaveFunction = async (empl: Employee) => {
         try {
-          empl.birthDate = new Date(empl.birthDate); 
-          const updatedEmployee: Employee = await employeesService.updateEmployee(empl);
-          setEmployees(employees.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
-          setEditOpen(false);
+            empl.birthDate = new Date(empl.birthDate);
+            const updatedEmployee: Employee = await employeesService.updateEmployee(empl);
+            setEmployees(employees.map((e) => (e.id === updatedEmployee.id ? updatedEmployee : e)));
+            setEditOpen(false);
         } catch (error: any) {
-            
-            if(typeof(error) == 'string' && error.includes('Authentication')) {
+            if (typeof error == 'string' && error.includes('Authentication')) {
                 authService.logout();
                 dispatch(authActions.reset());
-                
             } else {
                 setAlertMessage(error);
             }
         }
-        
     };
     const handleDeleteConfirm = async () => {
         if (employeeToDelete !== null) {
@@ -89,8 +83,6 @@ const Employees: React.FC = () => {
         setEmployeeToDelete(null);
         setConfirmOpen(false);
     };
-
-    
 
     useEffect(() => {
         const subscription = employeesService.getEmployees().subscribe({
@@ -137,7 +129,7 @@ const Employees: React.FC = () => {
                 headerClassName: 'data-grid-header',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter: (params) => new Date(params.value)
+                valueGetter: (params) => new Date(params.value),
             },
             {
                 field: 'department',
@@ -171,6 +163,7 @@ const Employees: React.FC = () => {
                 {
                     field: 'actions',
                     type: 'actions',
+                    headerName: 'Tools',
                     width: 80,
                     getActions: (params) => [
                         <GridActionsCellItem
