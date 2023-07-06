@@ -1,6 +1,7 @@
-import { Typography } from "@mui/material"
+import Statistics from '../common/Statistics';
 
 const SalaryStatistics: React.FC = () => {
-    return <Typography variant="h4" align="center">Salary statistics page</Typography>
-}
+  return <Statistics interval={5000} statisticsType="salary" />
+};
+
 export default SalaryStatistics;
