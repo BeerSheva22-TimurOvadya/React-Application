@@ -1,11 +1,11 @@
-import { Observable } from "rxjs";
-import Employee from "../model/Employee";
-import { AUTH_DATA_JWT } from "./AuthServiceJwt";
-import EmployeesService from "./EmployeesService";
+import { Observable } from 'rxjs';
+import Employee from '../model/Employee';
+import { AUTH_DATA_JWT } from './AuthServiceJwt';
+import EmployeesService from './EmployeesService';
 
 export default class EmployeesServiceRest implements EmployeesService {
-
-    constructor(private url: string) { }
+    constructor(private url: string) {}
+    
     async updateEmployee(empl: Employee): Promise<Employee> {
         let responseText = '';
         let flUpdate = false;
@@ -16,10 +16,9 @@ export default class EmployeesServiceRest implements EmployeesService {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`
+                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`,
                 },
-                body: JSON.stringify(empl)
-                
+                body: JSON.stringify(empl),
             });
             if (!response.ok) {
                 const { status, statusText } = response;
@@ -31,9 +30,10 @@ export default class EmployeesServiceRest implements EmployeesService {
             if (!flUpdate) {
                 throw error;
             }
-            throw responseText ? responseText : "Server is unavailable. Repeat later on";
+            throw responseText ? responseText : 'Server is unavailable. Repeat later on';
         }
     }
+
     async getEmployee(id: any): Promise<Employee> {
         let responseText = '';
         try {
@@ -41,9 +41,8 @@ export default class EmployeesServiceRest implements EmployeesService {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`
+                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`,
                 },
-                
             });
             if (!response.ok) {
                 const { status, statusText } = response;
@@ -52,10 +51,10 @@ export default class EmployeesServiceRest implements EmployeesService {
             }
             return await response.json();
         } catch (error: any) {
-
-            throw responseText ? responseText : "Server is unavailable. Repeat later on";
+            throw responseText ? responseText : 'Server is unavailable. Repeat later on';
         }
     }
+
     async deleteEmployee(id: any): Promise<void> {
         let responseText = '';
         let flDelete = false;
@@ -66,9 +65,8 @@ export default class EmployeesServiceRest implements EmployeesService {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`
+                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`,
                 },
-                
             });
             if (!response.ok) {
                 const { status, statusText } = response;
@@ -77,38 +75,39 @@ export default class EmployeesServiceRest implements EmployeesService {
             }
             return await response.json();
         } catch (error: any) {
-            if(!flDelete) {
+            if (!flDelete) {
                 throw error;
             }
-            throw responseText ? responseText : "Server is unavailable. Repeat later on";
+            throw responseText ? responseText : 'Server is unavailable. Repeat later on';
         }
     }
+
     getEmployees(): Observable<Employee[] | string> {
-       const res =  new Observable<Employee[] | string>((subscriber) => {
+        const res = new Observable<Employee[] | string>((subscriber) => {
             fetch(this.url, {
                 headers: {
-                    Authorization: "Bearer " +
-                        localStorage.getItem(AUTH_DATA_JWT)
-                }
-            }
-            ).then(response => {
-                let res: Promise<Employee[] | string>
-                if(response.ok) {
-                    res = response.json();
-                } else {
-                    res = Promise.resolve(response.status === 401 || response.status === 403 ?
-                     'Authentication' : response.statusText); 
-                }
-                return res;
-                
+                    Authorization: 'Bearer ' + localStorage.getItem(AUTH_DATA_JWT),
+                },
             })
-            .then((data) => subscriber.next(data)).catch(error => subscriber.next('Server is unavailable, repeate later on'));
-            
-
-        } );
+                .then((response) => {
+                    let res: Promise<Employee[] | string>;
+                    if (response.ok) {
+                        res = response.json();
+                    } else {
+                        res = Promise.resolve(
+                            response.status === 401 || response.status === 403
+                                ? 'Authentication'
+                                : response.statusText,
+                        );
+                    }
+                    return res;
+                })
+                .then((data) => subscriber.next(data))
+                .catch((error) => subscriber.next('Server is unavailable, repeate later on'));
+        });
         return res;
-        
     }
+
     async addEmployee(empl: Employee): Promise<Employee> {
         let responseText = '';
         try {
@@ -116,9 +115,9 @@ export default class EmployeesServiceRest implements EmployeesService {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`
+                    Authorization: `Bearer ${localStorage.getItem(AUTH_DATA_JWT) || ''}`,
                 },
-                body: JSON.stringify({ ...empl, userId: 'admin' })
+                body: JSON.stringify({ ...empl, userId: 'admin' }),
             });
             if (!response.ok) {
                 const { status, statusText } = response;
@@ -127,10 +126,7 @@ export default class EmployeesServiceRest implements EmployeesService {
             }
             return await response.json();
         } catch (error: any) {
-
-            throw responseText ? responseText : "Server is unavailable. Repeat later on";
+            throw responseText ? responseText : 'Server is unavailable. Repeat later on';
         }
-
     }
-
 }
