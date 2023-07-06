@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
     FormControl,
     Grid,
@@ -12,16 +12,15 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    FormHelperText,
-    Snackbar,
-    Alert,
+    FormHelperText,    
 } from '@mui/material';
 import Employee from '../../model/Employee';
 import employeeConfig from '../../config/employees-config.json';
 import InputResult from '../../model/InputResult';
-import { StatusType } from '../../model/StatusType';
+
 type Props = {
     submitFn: (empl: Employee) => Promise<InputResult>;
+    employeeUpdated?: Employee;
 };
 const initialDate: any = 0;
 const initialGender: any = '';
@@ -33,14 +32,10 @@ const initialEmployee: Employee = {
     salary: 0,
     gender: initialGender,
 };
-export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
+export const EmployeeForm: React.FC<Props> = ({ submitFn, employeeUpdated }) => {
     const { minYear, minSalary, maxYear, maxSalary, departments } = employeeConfig;
-    const [employee, setEmployee] = useState<Employee>(initialEmployee);
+    const [employee, setEmployee] = useState<Employee>(employeeUpdated || initialEmployee);
     const [errorMessage, setErrorMessage] = useState('');
-    const [alertMessage, setAlertMessage] = useState('');
-
-    const severity = useRef<StatusType>('success');
-
     function handlerName(event: any) {
         const name = event.target.value;
         const emplCopy = { ...employee };
@@ -78,13 +73,11 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
             setErrorMessage('Please select gender');
         } else {
             const res = await submitFn(employee);
-            severity.current = res.status;
             res.status === 'success' && event.target.reset();
-            setAlertMessage(res.message!);
         }
     }
     function onResetFn(event: any) {
-        setEmployee(initialEmployee);
+        setEmployee(employeeUpdated || initialEmployee);
     }
 
     return (
@@ -132,6 +125,7 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
                                     : ''
                             }
                             inputProps={{
+                                readOnly: !!employeeUpdated,
                                 min: `${minYear}-01-01`,
                                 max: `${maxYear}-12-31`,
                             }}
@@ -167,8 +161,18 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
                                 row
                                 onChange={genderHandler}
                             >
-                                <FormControlLabel value="female" control={<Radio />} label="Female" />
-                                <FormControlLabel value="male" control={<Radio />} label="Male" />
+                                <FormControlLabel
+                                    value="female"
+                                    control={<Radio />}
+                                    label="Female"
+                                    disabled={!!employeeUpdated}
+                                />
+                                <FormControlLabel
+                                    value="male"
+                                    control={<Radio />}
+                                    label="Male"
+                                    disabled={!!employeeUpdated}
+                                />
                                 <FormHelperText>{errorMessage}</FormHelperText>
                             </RadioGroup>
                         </FormControl>
@@ -180,15 +184,6 @@ export const EmployeeForm: React.FC<Props> = ({ submitFn }) => {
                     <Button type="reset">Reset</Button>
                 </Box>
             </form>
-            <Snackbar open={!!alertMessage} autoHideDuration={20000} onClose={() => setAlertMessage('')}>
-                <Alert
-                    onClose={() => setAlertMessage('')}
-                    severity={severity.current}
-                    sx={{ width: '100%' }}
-                >
-                    {alertMessage}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

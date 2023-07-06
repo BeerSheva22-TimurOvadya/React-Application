@@ -1,221 +1,211 @@
-import { Box, Snackbar, Alert } from '@mui/material';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import Employee from '../../model/Employee';
-import { authService, employeesService } from '../../config/service-config';
-
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowId } from '@mui/x-data-grid';
+import { Box, Snackbar, Alert, Modal } from "@mui/material"
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch } from 'react-redux';
-import { authActions } from '../../redux/slices/authSlice';
-import { StatusType } from '../../model/StatusType';
-import { useSelectorAuth } from '../../redux/store';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Confirm from '../common/Confirm';
-import EditModal from '../common/EditModal';
-import EditIcon from '@mui/icons-material/Edit';
+import Employee from "../../model/Employee";
+import { authService, employeesService } from "../../config/service-config";
+import { Subscription } from 'rxjs';
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import { authActions } from "../../redux/slices/authSlice";
+import { StatusType } from "../../model/StatusType";
+import CodeType from "../../model/CodeType";
+import { codeActions } from "../../redux/slices/codeSlice";
+import UserData from "../../model/UserData";
+import { Delete, Edit } from "@mui/icons-material";
+import { useSelectorAuth } from "../../redux/store";
+import { Confirmation } from "../common/Confirmation";
+import { CSSProperties } from "@mui/material/styles/createMixins";
+import { EmployeeForm } from "../forms/EmployeeForm";
+import InputResult from "../../model/InputResult";
+
+const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 const Employees: React.FC = () => {
     const dispatch = useDispatch();
-    const [alertMessage, setAlertMessage] = useState('');
-    const severity = useRef<StatusType>('error');
+    const userData = useSelectorAuth();
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const currentUser = useSelectorAuth();
+    const columns = useMemo(() => getColumns(), [userData, employees]);
 
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
-
-    const [editOpen, setEditOpen] = useState(false);
-    const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
-
-    const handleEditClick = (id: GridRowId) => {
-        const employee = employees.find((e) => e.id === id);
-        if (employee) {
-            setEmployeeToEdit(employee);
-            setEditOpen(true);
-        }
-    };
-
-    const handleSaveFunction = async (empl: Employee) => {
-        try {
-            empl.birthDate = new Date(empl.birthDate);
-            const updatedEmployee: Employee = await employeesService.updateEmployee(empl);
-            setEmployees(employees.map((e) => (e.id === updatedEmployee.id ? updatedEmployee : e)));
-            setEditOpen(false);
-        } catch (error: any) {
-            if (typeof error == 'string' && error.includes('Authentication')) {
-                authService.logout();
-                dispatch(authActions.reset());
-            } else {
-                setAlertMessage(error);
-            }
-        }
-    };
-    const handleDeleteConfirm = async () => {
-        if (employeeToDelete !== null) {
-            try {
-                await employeesService.deleteEmployee(employeeToDelete.id);
-                setEmployees(employees.filter((e) => e.id !== employeeToDelete.id));
-            } catch (error: any) {
-                if (typeof error == 'string' && error.includes('Authentication')) {
-                    authService.logout();
-                    dispatch(authActions.reset());
-                } else {
-                    setAlertMessage(error);
-                }
-            }
-        }
-        setConfirmOpen(false);
-    };
-
-    const handleEditClose = () => {
-        setEmployeeToEdit(null);
-        setEditOpen(false);
-    };
-
-    const handleDeleteClick = (id: GridRowId) => {
-        const employee = employees.find((e) => e.id === id);
-        if (employee) {
-            setEmployeeToDelete(employee);
-            setConfirmOpen(true);
-        }
-    };
-
-    const handleDeleteCancel = () => {
-        setEmployeeToDelete(null);
-        setConfirmOpen(false);
-    };
-
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [openEdit, setFlEdit] = useState(false);
+    const title = useRef('');
+    const content = useRef('');
+    const employeeId = useRef('');
+    const confirmFn = useRef<any>(null);
+    const employee = useRef<Employee | undefined>();
     useEffect(() => {
-        const subscription = employeesService.getEmployees().subscribe({
-            next(emplArray: Employee[] | string) {
-                if (typeof emplArray === 'string') {
-                    //FIXME
-                    if (emplArray.includes('Authentication')) {
-                        authService.logout();
-                        dispatch(authActions.reset());
+
+        const subscription: Subscription = employeesService.getEmployees()
+            .subscribe({
+                next(emplArray: Employee[] | string) {
+                    let code: CodeType = CodeType.OK;
+                    let message: string = '';
+                    if (typeof emplArray === 'string') {
+                        if (emplArray.includes('Authentication')) {
+                            code = CodeType.AUTH_ERROR;
+                            message = "Authentication error, mooving to Sign In";
+                        } else {
+                            code = emplArray.includes('unavailable') ? CodeType.SERVER_ERROR :
+                                CodeType.UNKNOWN;
+                            message = emplArray;
+                        }
+
+
                     } else {
-                        setAlertMessage(emplArray);
+                        setEmployees(emplArray.map(e => ({ ...e, birthDate: new Date(e.birthDate) })));
                     }
-                } else {
-                    setEmployees(emplArray.map((e) => ({ ...e, birthDate: new Date(e.birthDate) })));
+                    dispatch(codeActions.set({ code, message }))
+
                 }
-            },
-        });
+            });
         return () => subscription.unsubscribe();
     }, []);
+    function getColumns(): GridColDef[] {
+        const columns: GridColDef[] = [
+            {
+                field: 'id', headerName: 'ID', flex: 0.5, headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'name', headerName: 'Name', flex: 0.7, headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'birthDate', headerName: "Date", flex: 0.8, type: 'date', headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'department', headerName: 'Department', flex: 0.8, headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'salary', headerName: 'Salary', type: 'number', flex: 0.6, headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'gender', headerName: 'Gender', flex: 0.6, headerClassName: 'data-grid-header',
+                align: 'center', headerAlign: 'center'
+            },
+            {
+                field: 'actions', type: "actions", getActions: (params) => {
+                    return userData && userData.role == 'admin' ? [
+                        <GridActionsCellItem label="remove" icon={<Delete />}
+                            onClick={() => removeEmployee(params.id)
+                            } />,
+                        <GridActionsCellItem label="update" icon={<Edit />}
+                            onClick={() => {
+                                employeeId.current = params.id as any;
+                                if(params.id) {
+                                    const empl = employees.find(e => e.id == params.id);
+                                    empl && (employee.current = empl);
+                                    setFlEdit(true)
+                                }
+                                
+                            }
+                            } />
+                    ] : [];
+                }
+            }];
+        return columns;
+    }
+    function removeEmployee(id: any) {
+        title.current = "Remove Employee object?";
+        const employee = employees.find(empl => empl.id == id);
+        content.current = `You are going remove employee with id ${employee?.id}`;
+        employeeId.current = id;
+        confirmFn.current = actualRemove;
+        setOpenConfirm(true);
+    }
+    async function actualRemove(isOk: boolean) {
+        let code: CodeType = CodeType.OK;
+        let message: string = '';
 
-    const render = () => {
-        let columns: GridColDef[] = [
-            {
-                field: 'id',
-                headerName: 'ID',
-                flex: 0.5,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'name',
-                headerName: 'Name',
-                flex: 0.7,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'birthDate',
-                headerName: 'Date',
-                flex: 0.8,
-                type: 'date',
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-                valueGetter: (params) => new Date(params.value),
-            },
-            {
-                field: 'department',
-                headerName: 'Department',
-                flex: 0.8,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'salary',
-                headerName: 'Salary',
-                type: 'number',
-                flex: 0.6,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'gender',
-                headerName: 'Gender',
-                flex: 0.6,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-        ];
-        if (currentUser?.role === 'admin') {
-            columns = [
-                ...columns,
-                {
-                    field: 'actions',
-                    type: 'actions',
-                    headerName: 'Tools',
-                    width: 80,
-                    getActions: (params) => [
-                        <GridActionsCellItem
-                            icon={<DeleteIcon />}
-                            label="Delete"
-                            onClick={() => handleDeleteClick(params.id)}
-                        />,
-                        <GridActionsCellItem
-                            icon={<EditIcon />}
-                            label="Edit"
-                            onClick={() => handleEditClick(params.id)}
-                        />,
-                    ],
-                },
-            ];
+        if (isOk) {
+            try {
+                await employeesService.deleteEmployee(employeeId.current);
+            } catch (error: any) {
+                if (error.includes('Authentication')) {
+
+                    code = CodeType.AUTH_ERROR;
+                    message = "Authentication error, mooving to Sign In";
+                } else {
+                    code = error.includes('unavailable') ? CodeType.SERVER_ERROR :
+                        CodeType.UNKNOWN;
+                    message = error;
+                }
+            }
         }
+        dispatch(codeActions.set({ code, message }))
+        setOpenConfirm(false);
+    }
+     function updateEmployee(empl: Employee): Promise<InputResult>{
+        setFlEdit(false)
+        const res: InputResult = {status: 'error', message: ''};
+        if (JSON.stringify(employee.current) != JSON.stringify(empl)) {
+            title.current = "Update Employee object?";
+            employee.current = empl;
+        
+        content.current = `You are going update employee with id ${empl.id}`;
+        
+        confirmFn.current = actualUpdate;
+        setOpenConfirm(true);
+        }
+        return Promise.resolve(res);
+    }
+    async function actualUpdate(isOk: boolean) {
+        let code: CodeType = CodeType.OK;
+        let message: string = '';
 
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ height: '50vh', width: '80vw' }}>
-                    <DataGrid columns={columns} rows={employees} />
-                    <EditModal
-                        open={editOpen}
-                        handleClose={handleEditClose}
-                        employee={employeeToEdit}
-                        handleSave={handleSaveFunction}
-                    />
+        if (isOk) {
+            try {
+                await employeesService.updateEmployee(employee.current!);
+            } catch (error: any) {
+                if (error.includes('Authentication')) {
 
-                    <Confirm
-                        open={confirmOpen}
-                        title="Confirm Delete"
-                        text={`Are you sure you want to delete employee ${employeeToDelete?.name} with ID ${employeeToDelete?.id}?`}
-                        onConfirm={handleDeleteConfirm}
-                        onCancel={handleDeleteCancel}
-                    />
-                </Box>
-                <Snackbar
-                    open={!!alertMessage}
-                    autoHideDuration={20000}
-                    onClose={() => setAlertMessage('')}
-                >
-                    <Alert
-                        onClose={() => setAlertMessage('')}
-                        severity={severity.current}
-                        sx={{ width: '100%' }}
-                    >
-                        {alertMessage}
-                    </Alert>
-                </Snackbar>
+                    code = CodeType.AUTH_ERROR;
+                    message = "Authentication error, mooving to Sign In";
+                } else {
+                    code = error.includes('unavailable') ? CodeType.SERVER_ERROR :
+                        CodeType.UNKNOWN;
+                    message = error;
+                }
+            }
+        }
+        dispatch(codeActions.set({ code, message }))
+        setOpenConfirm(false);
+
+    }
+    
+    return <Box sx={{
+        display: 'flex', justifyContent: 'center',
+        alignContent: 'center'
+    }}>
+        <Box sx={{ height: '80vh', width: '80vw' }}>
+            <DataGrid columns={columns} rows={employees} />
+        </Box>
+        <Confirmation confirmFn={confirmFn.current} open={openConfirm}
+            title={title.current} content={content.current}></Confirmation>
+        <Modal
+            open={openEdit}
+            onClose={() => setFlEdit(false)}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+               <EmployeeForm submitFn={updateEmployee} employeeUpdated={employee.current} />
             </Box>
-        );
-    };
-    return render();
-};
+        </Modal>
+
+
+    </Box>
+}
 export default Employees;
