@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import {useRef, useState } from "react";
 import InputResult from "../../model/InputResult";
 
 import { StatusType } from "../../model/StatusType";

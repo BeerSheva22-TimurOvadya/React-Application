@@ -2,8 +2,6 @@ import { useDispatch } from "react-redux";
 import InputResult from "../../model/InputResult"
 import Input from "../common/Input"
 import { employeesService } from "../../config/service-config";
-import Employee from "../../model/Employee";
-import CodePayload from "../../model/CodePayload";
 import CodeType from "../../model/CodeType";
 import { getRandomEmployee } from "../../util/random";
 import employeeConfig from '../../config/employees-config.json';
