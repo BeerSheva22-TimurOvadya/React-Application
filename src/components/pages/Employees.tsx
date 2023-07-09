@@ -1,17 +1,71 @@
 import { Box, Modal } from '@mui/material';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import Employee from '../../model/Employee';
 import { employeesService } from '../../config/service-config';
 import { Subscription } from 'rxjs';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import CodeType from '../../model/CodeType';
-import { codeActions } from '../../redux/slices/codeSlice';
-import { Delete, Edit } from '@mui/icons-material';
+
+import { Delete, Edit, Man, Woman } from '@mui/icons-material';
 import { useSelectorAuth } from '../../redux/store';
 import { Confirmation } from '../common/Confirmation';
 import { EmployeeForm } from '../forms/EmployeeForm';
 import InputResult from '../../model/InputResult';
+import { useDispatchCode, useSelectorEmployees } from '../../hooks/hooks';
+const columnsCommon: GridColDef[] = [
+    {
+        field: 'id',
+        headerName: 'ID',
+        flex: 0.5,
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'name',
+        headerName: 'Name',
+        flex: 0.7,
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'birthDate',
+        headerName: 'Date',
+        flex: 0.8,
+        type: 'date',
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'department',
+        headerName: 'Department',
+        flex: 0.8,
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'salary',
+        headerName: 'Salary',
+        type: 'number',
+        flex: 0.6,
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'gender',
+        headerName: 'Gender',
+        flex: 0.6,
+        headerClassName: 'data-grid-header',
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => {
+            return params.value == 'male' ? <Man /> : <Woman />;
+        },
+    },
+];
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -26,9 +80,37 @@ const style = {
 };
 
 const Employees: React.FC = () => {
-    const dispatch = useDispatch();
+    const columnsAdmin: GridColDef[] = [
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Tools',
+            getActions: (params) => {
+                return [
+                    <GridActionsCellItem
+                        label="remove"
+                        icon={<Delete />}
+                        onClick={() => removeEmployee(params.id)}
+                    />,
+                    <GridActionsCellItem
+                        label="update"
+                        icon={<Edit />}
+                        onClick={() => {
+                            employeeId.current = params.id as any;
+                            if (params.row) {
+                                const empl = params.row;
+                                empl && (employee.current = empl);
+                                setFlEdit(true);
+                            }
+                        }}
+                    />,
+                ];
+            },
+        },
+    ];
+    const dispatch = useDispatchCode();
     const userData = useSelectorAuth();
-    const [employees, setEmployees] = useState<Employee[]>([]);
+    const employees = useSelectorEmployees();
     const columns = useMemo(() => getColumns(), [userData, employees]);
 
     const [openConfirm, setOpenConfirm] = useState(false);
@@ -38,171 +120,58 @@ const Employees: React.FC = () => {
     const employeeId = useRef('');
     const confirmFn = useRef<any>(null);
     const employee = useRef<Employee | undefined>();
-    useEffect(() => {
-        const subscription: Subscription = employeesService.getEmployees().subscribe({
-            next(emplArray: Employee[] | string) {
-                let code: CodeType = CodeType.OK;
-                let message: string = '';
-                if (typeof emplArray === 'string') {
-                    if (emplArray.includes('Authentication')) {
-                        code = CodeType.AUTH_ERROR;
-                        message = 'Authentication error, mooving to Sign In';
-                    } else {
-                        code = emplArray.includes('unavailable')
-                            ? CodeType.SERVER_ERROR
-                            : CodeType.UNKNOWN;
-                        message = emplArray;
-                    }
-                } else {
-                    setEmployees(emplArray.map((e) => ({ ...e, birthDate: new Date(e.birthDate) })));
-                }
-                dispatch(codeActions.set({ code, message }));
-            },
-        });
-        return () => subscription.unsubscribe();
-    }, []);
+
     function getColumns(): GridColDef[] {
-        const columns: GridColDef[] = [
-            {
-                field: 'id',
-                headerName: 'ID',
-                flex: 0.5,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'name',
-                headerName: 'Name',
-                flex: 0.7,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'birthDate',
-                headerName: 'Date',
-                flex: 0.8,
-                type: 'date',
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'department',
-                headerName: 'Department',
-                flex: 0.8,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'salary',
-                headerName: 'Salary',
-                type: 'number',
-                flex: 0.6,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'gender',
-                headerName: 'Gender',
-                flex: 0.6,
-                headerClassName: 'data-grid-header',
-                align: 'center',
-                headerAlign: 'center',
-            },
-            {
-                field: 'actions',
-                type: 'actions',
-                getActions: (params) => {
-                    return userData && userData.role === 'admin'
-                        ? [
-                              <GridActionsCellItem
-                                  label="remove"
-                                  icon={<Delete />}
-                                  onClick={() => removeEmployee(params.id)}
-                              />,
-                              <GridActionsCellItem
-                                  label="update"
-                                  icon={<Edit />}
-                                  onClick={() => {
-                                      employeeId.current = params.id as any;
-                                      if (params.id) {
-                                          const empl = employees.find((e) => e.id === params.id);
-                                          empl && (employee.current = empl);
-                                          setFlEdit(true);
-                                      }
-                                  }}
-                              />,
-                          ]
-                        : [];
-                },
-            },
-        ];
-        return columns;
+        let res: GridColDef[] = columnsCommon;
+        if (userData && userData.role == 'admin') {
+            res = res.concat(columnsAdmin);
+        }
+        return res;
     }
+    
     function removeEmployee(id: any) {
         title.current = 'Remove Employee object?';
-        const employee = employees.find((empl) => empl.id === id);
+        const employee = employees.find((empl) => empl.id == id);
         content.current = `You are going remove employee with id ${employee?.id}`;
         employeeId.current = id;
         confirmFn.current = actualRemove;
         setOpenConfirm(true);
     }
     async function actualRemove(isOk: boolean) {
-        let code: CodeType = CodeType.OK;
-        let message: string = '';
-
+        let errorMessage: string = '';
         if (isOk) {
             try {
                 await employeesService.deleteEmployee(employeeId.current);
             } catch (error: any) {
-                if (error.includes('Authentication')) {
-                    code = CodeType.AUTH_ERROR;
-                    message = 'Authentication error, mooving to Sign In';
-                } else {
-                    code = error.includes('unavailable') ? CodeType.SERVER_ERROR : CodeType.UNKNOWN;
-                    message = error;
-                }
+                errorMessage = error;
             }
         }
-        dispatch(codeActions.set({ code, message }));
+        dispatch(errorMessage, '');
         setOpenConfirm(false);
     }
     function updateEmployee(empl: Employee): Promise<InputResult> {
         setFlEdit(false);
         const res: InputResult = { status: 'error', message: '' };
-        if (JSON.stringify(employee.current) !== JSON.stringify(empl)) {
+        if (JSON.stringify(employee.current) != JSON.stringify(empl)) {
             title.current = 'Update Employee object?';
             employee.current = empl;
-
             content.current = `You are going update employee with id ${empl.id}`;
-
             confirmFn.current = actualUpdate;
             setOpenConfirm(true);
         }
         return Promise.resolve(res);
     }
     async function actualUpdate(isOk: boolean) {
-        let code: CodeType = CodeType.OK;
-        let message: string = '';
+        let errorMessage: string = '';
 
         if (isOk) {
             try {
                 await employeesService.updateEmployee(employee.current!);
             } catch (error: any) {
-                if (error.includes('Authentication')) {
-                    code = CodeType.AUTH_ERROR;
-                    message = 'Authentication error, mooving to Sign In';
-                } else {
-                    code = error.includes('unavailable') ? CodeType.SERVER_ERROR : CodeType.UNKNOWN;
-                    message = error;
-                }
+                errorMessage = error;
             }
         }
-        dispatch(codeActions.set({ code, message }));
+        dispatch(errorMessage, '');
         setOpenConfirm(false);
     }
 
@@ -214,7 +183,7 @@ const Employees: React.FC = () => {
                 alignContent: 'center',
             }}
         >
-            <Box sx={{ height: '80vh', width: '80vw' }}>
+            <Box sx={{ height: '80vh', width: '95vw' }}>
                 <DataGrid columns={columns} rows={employees} />
             </Box>
             <Confirmation

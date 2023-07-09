@@ -1,141 +1,62 @@
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Box, TextField, Button } from '@mui/material';
-import Employee from '../../model/Employee';
-import React, { useEffect, useState } from 'react';
-import { employeesService } from '../../config/service-config';
-import config from '../../config/employees-config.json';
+import { Box, Container, Grid, FormControl, Select, InputLabel, MenuItem, Typography } from "@mui/material";
+import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import { useRef } from "react";
+import Chart from "./Chart";
+export type StatisticsType = {
+    id: any;
+    min: number;
+    max: number;
+    amount: number
+}[]
+type Props = {
+    title: string;
+    intervalOptions: number[];
+    data: StatisticsType;
+    submitFn: (interval: number)=>void
 
-type StatisticsType = 'age' | 'salary';
-
-interface StatisticsProps {
-    interval: number;
-    statisticsType: StatisticsType;
 }
+const columns: GridColDef[] = [
+    {field: "min", sortable: false, headerName: "Min ",type:"number",
+     headerClassName: 'data-grid-header', align: 'center', headerAlign: 'center', flex:0.5},
+    {field: "max", sortable: false, headerName: "Max ", type:"number",
+    headerClassName: 'data-grid-header', align: 'center', headerAlign: 'center', flex: 0.5},
+    {field: "amount", sortable: false, headerName: "Amount", type:"number",
+    headerClassName: 'data-grid-header', align: 'center', headerAlign: 'center', flex: 0.5}
+]
+const Statistics: React.FC<Props> = ({intervalOptions, submitFn, title, data}) => {
+    const intervalValue = useRef(intervalOptions[0]);
+    function handlerInterval(event: any) {
+        const value: number = +event.target.value;
+        intervalValue.current = value;
+        submitFn(value);
+    }
 
-const Statistics: React.FC<StatisticsProps> = ({ interval, statisticsType }) => {
-    const [statisticsData, setStatisticsData] = useState<
-        Array<{ id: number; min: number; max: number; count: number }>
-    >([]);
-    const [intervalValue, setIntervalValue] = useState(interval.toString());
-    const [appliedInterval, setAppliedInterval] = useState(interval.toString());
+  return <Container >
 
-    useEffect(() => {
-        employeesService.getEmployees().subscribe((data) => {
-            if (typeof data !== 'string') {
-                setStatisticsData(calculateStatistics(data, Number(appliedInterval), statisticsType));
-            } else {
-                console.error(data);
-            }
-        });
-    }, [appliedInterval, statisticsType]);
-
-    const calculateStatistics = (
-        employees: Employee[],
-        interval: number,
-        statisticsType: StatisticsType,
-    ) => {
-        let array = [...employees];
-        const currentYear = new Date().getFullYear();
-
-        if (statisticsType === 'age') {
-            array = array.map((e) => ({ ...e, age: currentYear - new Date(e.birthDate).getFullYear() }));
-            statisticsType = 'age';
-        }
-
-        const statisticsObj = count(array, statisticsType, interval);
-
-        function count(array: any[], field: string, interval: number): Record<number, number> {
-            return array.reduce((res: Record<number, number>, cur) => {
-                const intervalNumber = Math.trunc(cur[field] / interval);
-                res[intervalNumber] = res[intervalNumber] === undefined ? 1 : res[intervalNumber] + 1;
-                return res;
-            }, {});
-        }
-
-        return Object.entries(statisticsObj).map(([key, value], id) => {
-            const min = Number(key) * interval;
-            const max = min + interval - 1;
-            return { id, min, max, count: value as number };
-        });
-    };
-
-    const columns: GridColDef[] = [
-        {
-            field: 'id',
-            headerName: 'ID',
-            flex: 0.5,
-            headerClassName: 'data-grid-header',
-            align: 'center',
-            headerAlign: 'center',
-        },
-        {
-            field: 'min',
-            headerName: statisticsType === 'age' ? 'Minimum Age' : 'Minimum Salary',
-            flex: 0.7,
-            headerClassName: 'data-grid-header',
-            align: 'center',
-            headerAlign: 'center',
-        },
-        {
-            field: 'max',
-            headerName: statisticsType === 'age' ? 'Maximum Age' : 'Maximum Salary',
-            flex: 0.7,
-            headerClassName: 'data-grid-header',
-            align: 'center',
-            headerAlign: 'center',
-        },
-        {
-            field: 'count',
-            headerName: 'Count',
-            flex: 0.7,
-            headerClassName: 'data-grid-header',
-            align: 'center',
-            headerAlign: 'center',
-        },
-    ];
-
-    return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Box
-                sx={{
-                    marginBottom: '20px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    width: '30%',
-                }}
-            >
-                <TextField
-                    label="Interval"
-                    variant="outlined"
-                    type="number"
-                    inputProps={
-                        statisticsType === 'age'
-                          ? { min: 0, max: new Date().getFullYear() - config.minYear }
-                          : { min: config.minSalary, max: config.maxSalary }
-                      }
-                    value={intervalValue}
-                    onChange={(e) => setIntervalValue(e.target.value)}
-                />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setAppliedInterval(intervalValue)}
-                >
-                    Apply
-                </Button>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => setAppliedInterval(interval.toString())}
-                >
-                    Reset
-                </Button>
-            </Box>
-            <Box sx={{ height: '80vh', width: '60vw' }}>
-                <DataGrid columns={columns} rows={statisticsData} />
-            </Box>
-        </Box>
-    );
-};
-
+        <Grid container justifyContent={'center'} spacing={1} >
+            
+            <Grid item xs={8}>
+            <FormControl fullWidth required>
+                        <InputLabel id="select-interval-id">Interval Value</InputLabel>
+                        <Select labelId="select-interval-id" label="Distribution"
+                             onChange={handlerInterval} value={intervalValue.current}>
+                            {intervalOptions.map(o => <MenuItem value={o} key={o}>{o}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Box sx={{width: "100%",
+                 height: {xs: "30vh", sm: "60vh"}}}>
+                    <DataGrid columns={columns} rows={data} rowHeight={20}/>
+                </Box>
+            </Grid>
+            <Grid item xs={8} sm={6}>
+                <Box sx={{width: "80%", height: "40vh"}}>
+                    <Chart  yAxis={"Employees"}
+                     data={data.map(s => ({key: s.min, amount: s.amount}))} dataKey={"key"} />
+                </Box>
+            </Grid>
+        </Grid>
+  </Container>
+}
 export default Statistics;

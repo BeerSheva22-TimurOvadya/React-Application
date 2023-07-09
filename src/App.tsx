@@ -66,6 +66,7 @@ const App: React.FC = () => {
        dispatch(authActions.reset()); 
       authService.logout()
     }
+    
     return res;
   }
   return <BrowserRouter>
