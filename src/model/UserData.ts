@@ -1,5 +1,5 @@
 type UserData = {
     email: string;
     role: string;
-} | null
+} | null;
 export default UserData;

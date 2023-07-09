@@ -1,8 +1,7 @@
 import { Box, Modal } from '@mui/material';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import Employee from '../../model/Employee';
 import { employeesService } from '../../config/service-config';
-import { Subscription } from 'rxjs';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
 
 import { Delete, Edit, Man, Woman } from '@mui/icons-material';
@@ -62,7 +61,7 @@ const columnsCommon: GridColDef[] = [
         align: 'center',
         headerAlign: 'center',
         renderCell: (params) => {
-            return params.value == 'male' ? <Man /> : <Woman />;
+            return params.value === 'male' ? <Man /> : <Woman />;
         },
     },
 ];
@@ -123,7 +122,7 @@ const Employees: React.FC = () => {
 
     function getColumns(): GridColDef[] {
         let res: GridColDef[] = columnsCommon;
-        if (userData && userData.role == 'admin') {
+        if (userData && userData.role === 'admin') {
             res = res.concat(columnsAdmin);
         }
         return res;
@@ -131,7 +130,7 @@ const Employees: React.FC = () => {
     
     function removeEmployee(id: any) {
         title.current = 'Remove Employee object?';
-        const employee = employees.find((empl) => empl.id == id);
+        const employee = employees.find((empl) => empl.id === id);
         content.current = `You are going remove employee with id ${employee?.id}`;
         employeeId.current = id;
         confirmFn.current = actualRemove;
@@ -152,7 +151,7 @@ const Employees: React.FC = () => {
     function updateEmployee(empl: Employee): Promise<InputResult> {
         setFlEdit(false);
         const res: InputResult = { status: 'error', message: '' };
-        if (JSON.stringify(employee.current) != JSON.stringify(empl)) {
+        if (JSON.stringify(employee.current) !== JSON.stringify(empl)) {
             title.current = 'Update Employee object?';
             employee.current = empl;
             content.current = `You are going update employee with id ${empl.id}`;

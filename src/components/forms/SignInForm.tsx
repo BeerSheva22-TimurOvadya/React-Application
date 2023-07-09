@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -33,8 +31,8 @@ function Copyright(props: any) {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 type Props = {
-    submitFn: (loginData: LoginData) => Promise<InputResult>
-}
+    submitFn: (loginData: LoginData) => Promise<InputResult>;
+};
 const SignInForm: React.FC<Props> = ({ submitFn }) => {
     const message = React.useRef<string>('');
     const [open, setOpen] = React.useState(false);
@@ -56,8 +54,8 @@ const SignInForm: React.FC<Props> = ({ submitFn }) => {
                 <CssBaseline />
                 <Box
                     sx={{
-                        marginTop: {xs: 8, sm:-4, md: 8},
-                       
+                        marginTop: { xs: 8, sm: -4, md: 8 },
+
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -81,7 +79,6 @@ const SignInForm: React.FC<Props> = ({ submitFn }) => {
                                     name="email"
                                     autoComplete="email"
                                     autoFocus
-                                    
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={12}>
@@ -94,29 +91,21 @@ const SignInForm: React.FC<Props> = ({ submitFn }) => {
                                     type="password"
                                     id="password"
                                     autoComplete="current-password"
-
                                 />
                             </Grid>
-                            <Grid item xs={12} >
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                   
-                                >
+                            <Grid item xs={12}>
+                                <Button type="submit" fullWidth variant="contained">
                                     Sign In
                                 </Button>
                             </Grid>
                         </Grid>
-
-
-
-
-
                     </Box>
-                    <Snackbar open={open} autoHideDuration={10000}
-                        onClose={() => setOpen(false)}>
-                        <Alert onClose={() => setOpen(false)} severity={severity.current} sx={{ width: '100%' }}>
+                    <Snackbar open={open} autoHideDuration={10000} onClose={() => setOpen(false)}>
+                        <Alert
+                            onClose={() => setOpen(false)}
+                            severity={severity.current}
+                            sx={{ width: '100%' }}
+                        >
                             {message.current}
                         </Alert>
                     </Snackbar>
@@ -125,5 +114,5 @@ const SignInForm: React.FC<Props> = ({ submitFn }) => {
             </Container>
         </ThemeProvider>
     );
-}
+};
 export default SignInForm;

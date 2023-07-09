@@ -12,7 +12,7 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    FormHelperText,    
+    FormHelperText,
 } from '@mui/material';
 import Employee from '../../model/Employee';
 import employeeConfig from '../../config/employees-config.json';

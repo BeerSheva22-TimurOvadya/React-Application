@@ -1,6 +1,6 @@
 import { AppBar, Box, Tab, Tabs } from '@mui/material';
 import { ReactNode, useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 export type RouteType = {
     to: string;
     label: string;
@@ -9,7 +9,7 @@ const Navigator: React.FC<{ routes: RouteType[] }> = ({ routes }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [value, setValue] = useState(0);
-    
+
     useEffect(() => {
         let index = routes.findIndex((r) => r.to === location.pathname);
         if (index < 0) {
@@ -29,8 +29,8 @@ const Navigator: React.FC<{ routes: RouteType[] }> = ({ routes }) => {
 
     return (
         <Box mt={10}>
-            <AppBar sx={{ backgroundColor: 'lightcyan'}} >
-                <Tabs value={value < routes.length ? value : 0} onChange={onChangeFn} color='black'>
+            <AppBar sx={{ backgroundColor: 'lightcyan' }}>
+                <Tabs value={value < routes.length ? value : 0} onChange={onChangeFn} color="black">
                     {getTabs()}
                 </Tabs>
             </AppBar>
