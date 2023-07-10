@@ -97,6 +97,17 @@ const SignInForm: React.FC<Props> = ({ submitFn }) => {
                                 <Button type="submit" fullWidth variant="contained">
                                     Sign In
                                 </Button>
+                                <Button
+                                    onClick={() => submitFn({ email: 'GOOGLE', password: '' })}
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{ mt: 2 }}
+                                >
+                                    <Avatar
+                                        src="https://www.teknowize.com/attachments/file_1656251559.png"
+                                        sx={{ width: { xs: '6vh', sm: '6vw', lg: '3vw' }}}
+                                    />
+                                </Button>
                             </Grid>
                         </Grid>
                     </Box>
