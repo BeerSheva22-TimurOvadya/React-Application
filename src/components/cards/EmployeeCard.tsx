@@ -31,7 +31,7 @@ const EmployeeCard: React.FC<Props> = ({employee, actionFn}) => {
                    gender: {employee.gender}
               </Typography>
           </CardContent>
-         { userData && userData.role=="admin" && <CardActions>
+         { userData && userData.role === "admin" && <CardActions>
             <Button size="small"onClick={() =>actionFn(false) }>Update</Button>
             <Button size="small" onClick={() =>actionFn(true)}>Delete</Button>
           </CardActions>}
