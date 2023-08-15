@@ -7,7 +7,7 @@ import { getRandomEmployee } from '../../util/random';
 import employeeConfig from '../../config/employees-config.json';
 import { codeActions } from '../../redux/slices/codeSlice';
 const { minSalary, maxSalary, departments, minYear, maxYear } = employeeConfig;
-const MAX_AMOUNT = 20;
+const MAX_AMOUNT = 10;
 const Generation: React.FC = () => {
     const dispatch = useDispatch();
     function onSubmit(value: string): InputResult {
