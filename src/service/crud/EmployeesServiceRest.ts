@@ -8,7 +8,7 @@ async function getResponseText(response: Response): Promise<string> {
     let res = '';
     if (!response.ok) {
         const { status } = response;
-        res = status == 401 || status == 403 ? 'Authentication' : await response.text();
+        res = status === 401 || status === 403 ? 'Authentication' : await response.text();
     }
     return res;
 }
@@ -28,7 +28,7 @@ async function fetchRequest(url: string, options: RequestInit, empl?: Employee):
     let flUpdate = true;
     let responseText = '';
     try {
-        if (options.method == 'DELETE' || options.method == 'PUT') {
+        if (options.method === 'DELETE' || options.method === 'PUT') {
             flUpdate = false;
             await fetchRequest(url, { method: 'GET' });
             flUpdate = true;
