@@ -1,8 +1,8 @@
-import { Observable, Subscriber } from 'rxjs';
-import Employee from '../../model/Employee';
-import { AUTH_DATA_JWT } from '../auth/AuthServiceJwt';
-import EmployeesService from './EmployeesService';
-const POLLER_INTERVAL = 30000;
+import { Observable, Subscriber } from "rxjs";
+import Employee from "../model/Employee";
+import { AUTH_DATA_JWT } from "./AuthServiceJwt";
+import EmployeesService from "./EmployeesService";
+const POLLER_INTERVAL = 30000
 class Cache {
     cacheString: string = '';
     set(employees: Employee[]): void {

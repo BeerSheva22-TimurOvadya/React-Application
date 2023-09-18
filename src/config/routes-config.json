@@ -6,8 +6,10 @@
         { "to": "/statistics/age", "label": "Age Statistics", "order": 100 },
         { "to": "/statistics/salary", "label": "Salary Statistics", "order": 100 }
     ],
-    "admin": [{ "to": "/employees/add", "label": "Add Employee", "order": 2 }],
+    "admin": [
+        { "to": "/employees/add", "label": "Add Employee", "order": 2 },
+        { "to": "/generation", "label": "Generate Employees", "order": 20 }
+    ],
     "noadmin": [],
-    "noauthenticated": [{ "to": "/signin", "label": "Sign In", "order": 2 }],
-    "developmentAdmin": [{ "to": "/generation", "label": "Generate Employees", "order": 20 }]
+    "noauthenticated": [{ "to": "/signin", "label": "Sign In", "order": 2 }]
 }
