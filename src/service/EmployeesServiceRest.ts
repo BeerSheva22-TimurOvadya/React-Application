@@ -110,14 +110,16 @@ export default class EmployeesServiceRest implements EmployeesService {
 
     }
        
-    async addEmployee(empl: Employee): Promise<Employee> {
-       
-            const response = await fetchRequest(this.urlService, {
-                method: 'POST',
-               }, empl)
-           ;
-           return response.json();
-
+    async addEmployee(empl: Employee): Promise<Employee> { 
+        if (empl.id == 0) { 
+            delete empl.id;     
+        } 
+            const response = await fetchRequest(this.urlService, { 
+                method: 'POST', 
+               }, empl) 
+           ; 
+           return response.json(); 
+ 
     }
 
 }
