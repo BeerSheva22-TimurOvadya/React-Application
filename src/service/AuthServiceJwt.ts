@@ -1,8 +1,7 @@
-import LoginData from '../../model/LoginData';
-import UserData from '../../model/UserData';
-import AuthService from './AuthService';
+import LoginData from "../model/LoginData";
+import UserData from "../model/UserData";
+import AuthService from "./AuthService";
 export const AUTH_DATA_JWT = 'auth-data-jwt';
-
 function getUserData(data: any): UserData {
     const jwt = data.accessToken;
     localStorage.setItem(AUTH_DATA_JWT,jwt);

@@ -22,7 +22,6 @@ import { authService } from "./config/service-config";
 import { Alert, Snackbar } from "@mui/material";
 import { codeActions } from "./redux/slices/codeSlice";
 import Generation from "./components/pages/Generation";
-import process from "process";
 const {always, authenticated, admin, noadmin, noauthenticated} = routesConfig;
 type RouteTypeOrder = RouteType & {order?: number}
 function getRoutes(userData: UserData): RouteType[] {
@@ -31,11 +30,7 @@ function getRoutes(userData: UserData): RouteType[] {
   if(userData) {
       res.push(...authenticated);
       if (userData.role === 'admin') {
-        res.push(...admin);
-        if(routesConfig.developmentAdmin &&
-           process.env.NODE_ENV!="production") {
-            res.push(...routesConfig.developmentAdmin);
-        }
+        res.push(...admin)
       } else {
         res.push(...noadmin)
       }
